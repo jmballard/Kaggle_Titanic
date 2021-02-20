@@ -36,18 +36,27 @@ Some children travelled only with a nanny, therefore parch=0 for them.
 ## Analysis
 
 ### Import and quick data check
-We first import the datasets and look at them with some plots and statistics.
+We first import the datasets and look at them with some plots and statistics. We remove name and Ticket.
 ### Preprocessing
 The preprocessing contains 5 steps:
 
-- Separate last name, first name and titles (some titles may have an impact on their survival)
-- From the cabin number, separate the alphabetical component and the numerical component
-- Remove the NAS
-- Create categories from the Class, Sex, Siblings, Embarked and Cabin letter, then dummies columns
+- We create a column to say if they had a cabin number or not.
+- Remove the outlier of the Fare column
+- Remove the NAS, with either a label encoder or the median.
+- Create categories from the Class, Sex, Siblings, Embarked and Cabin_NA, then dummies columns
 - Separate features and label from train dataset, with only the columns we want to use for the modelling
+
+In the end, separate the train dataset into training and testing subdatasets. The "test" file will be used as validation.
 ### Models chosen
-The first model chosen is a Random Forest Classifier on the whole train dataset.
+The first model chosen is a XGBRegressor with GridSearch. 
+We tried the hyper parameters:
+
+- "eta":[0.05,0.1,0.2,0.3]
+- "gamma":[0,0.01,0.1,0.15,0.2]
+- "max_depth":[3,4,5,6,7]
+
+The best hyper parameters are: 'eta': 0.1, 'gamma': 0, 'max_depth': 3.
 ### Score in Kaggle
 
-The current Score in Kaggle for the current model is 0.34449.
+The current Score in Kaggle for the current model is 0.77272.
 

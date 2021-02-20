@@ -1,81 +1,121 @@
 # import all the necessary python packages -----
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split, GridSearchCV
+from xgboost import XGBRegressor
+from sklearn.metrics import  accuracy_score
+from sklearn.preprocessing import LabelEncoder
 
 
 # import datasets -------------------------------
-train = pd.read_csv("/kaggle/input/titanic/train.csv") 
-test = pd.read_csv("/kaggle/input/titanic/test.csv")
+train = pd.read_csv("train.csv") 
+test = pd.read_csv("test.csv")
 
-df = train
+# # for Kaggle
+# train = pd.read_csv("/kaggle/input/titanic/train.csv") 
+# test = pd.read_csv("/kaggle/input/titanic/test.csv")
 
-# check object columns
-df.Name.value_counts() # names with Surname, Title Firstname -> title may be useful!
-df.Ticket.value_counts() # number of the Ticket -> not useful for now
-df.Cabin.value_counts() # number of the cabin, format LETTER + int. May be interesting to separate them
-df.Embarked.value_counts() # Where they embarked. May be useful. 
+# check details of training dataset -------------
+train.head()
+train.info()
+train.describe()
+train.isna().sum()
 
-# remove the Ticket & PassengerId columns
-df = df.drop(["Ticket"], axis = 1)
+# 2 rows of missing embarked. Replacing the NAs by "S", which is the most commun value
+train.Embarked.value_counts()
+train = train.fillna(value = {"Embarked" : "S"})
+
+plt.hist(train["Age"])
+plt.show()
+
+train["SibSp"].value_counts() # keep them as numeric
+train["Parch"].value_counts() # keep them as numeric
+
+plt.hist(train["Fare"])
+plt.show() # there may be some outliers!
+
+sns.histplot(x = train["Sex"],
+             hue = train["Survived"])
+plt.show() # better survival for women
+
+train['LastName'], train['FirstName'] = train['Name'].str.split(',', n = 1).str
+train['Title'], train['FirstNames'] = train['FirstName'].str.split('.', n = 1).str
+train['Title'] = train['Title'].str.replace(" ","")
+sns.histplot(x = train["Title"],
+             hue = train["Survived"])
+plt.show() # Title will be useless: we know already that the ladies will survive more!
+
+train = train.drop(["Ticket","Name", "LastName","Title","FirstNames","FirstName"], axis = 1)
 
 
-# preprocessing part 1: separate the last name, title and first names from the names. Keep only title
-df['LastName'], df['FirstName'] = df['Name'].str.split(',', n = 1).str
-df['Title'], df['FirstNames'] = df['FirstName'].str.split('.', n = 1).str
-df['Title'] = df['Title'].str.replace(" ","")
+# preprocessing part 1: say if they had a cabin or not
+train["Cabin_NA"] = train.Cabin.isna().astype(int)
+train = train.drop(["Cabin"], axis = 1)
 
-df = df.drop(["LastName"], axis = 1)
-df = df.drop(["FirstNames"], axis = 1)
-df = df.drop(["FirstName"], axis = 1)
-df = df.drop(["Name"], axis = 1)
-
-
-# preprocessing part 2: separate letter from numbers in the Cabin column, fill the NA with X
-df["Cabin_letter"] = df.Cabin.str.slice(start = 0, stop = 1)
-df = df.drop(["Cabin"], axis = 1)
+# preprocessing part 2: remove outliers
+train = train[train["Fare"] < train["Fare"].quantile(0.99)]
 
 # preprocessing part 3: remove NAs
-df = df.fillna(value = {"Cabin_letter" : "X",
-                              "Embarked" : "X"})
-avg_age_df = df['Age'].mean()
-df['Age'] = df['Age'].fillna(avg_age_df).round(decimals = 0)
-df["Fare"] = df['Fare'].fillna(df['Fare'].mean()).round(decimals = 0)
+le=LabelEncoder()
+train["Embarked"] = le.fit_transform(train["Embarked"])
+
+avg_age_train = train['Age'].median()
+train['Age'] = train['Age'].fillna(avg_age_train).round(decimals = 0)
+train["Fare"] = train['Fare'].fillna(train['Fare'].median()).round(decimals = 0)
 
 
 # preprocessing part 4: create dummy categories
-feature_to_categories = ["Pclass", "Sex", "SibSp", "Parch","Embarked",  "Cabin_letter"] #"Title"
-df[feature_to_categories] = df[feature_to_categories].apply(lambda x: x.astype("category"))
-df = pd.get_dummies(df, columns = feature_to_categories , dtype = np.int64)
+feature_to_categories = ["Pclass", "Sex", "Embarked",  "Cabin_NA"] #"Title"
+train[feature_to_categories] = train[feature_to_categories].apply(lambda x: x.astype("category"))
+train = pd.get_dummies(train, columns = feature_to_categories , dtype = np.int64)
 
 
-# preprocessing part 5: separate X and Y
-nottaken = ["PassengerId","Survived","Title"]
-X_train = df.drop(nottaken, axis = 1)
-y_train = df["Survived"]
+
+# preprocessing part 5: separate X and Y, train and test dataset for model
+nottaken = ["PassengerId","Survived"]
+X = train.drop(nottaken, axis = 1)
+y = train["Survived"]
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.3,random_state=21,shuffle=True)
 
 
-# Model 1: RandomForestClassifier
-from sklearn.ensemble import RandomForestClassifier
-mdl1 = RandomForestClassifier(n_estimators=100, max_depth=5, random_state=1)
+# Model: XGBRegressor with GridSearch
+rfc = XGBRegressor()
+params={"eta":[0.05,0.1,0.2,0.3],
+        "gamma":[0,0.01,0.1,0.15,0.2],
+        "max_depth":[3,4,5,6,7] }
+mdl1 = GridSearchCV(rfc,params,cv=10,n_jobs=-1,verbose=1)
 mdl1.fit(X_train, y_train)
 
-# predict
-X_test = test.drop(["Ticket","Name"],axis = 1)
-X_test["Cabin_letter"] = X_test.Cabin.str.slice(start = 0, stop = 1)
-X_test = X_test.drop(["Cabin"], axis = 1)
+ypred=mdl1.predict(X_train)
+ypred_bin = np.where(ypred >= 0.5, 1, 0)
+tpred=mdl1.predict(X_test)
+tpred_bin = np.where(tpred >= 0.5, 1, 0)
+print(accuracy_score(ypred_bin,y_train))
+print(accuracy_score(tpred_bin,y_test))
+mdl1.best_params_
 
-X_test = X_test.fillna(value = {"Cabin_letter" : "X",
-                              "Embarked" : "X"})
-X_test['Age'] = X_test['Age'].fillna(X_test['Age'].mean()).round(decimals = 0)
-X_test["Fare"] = X_test['Fare'].fillna(X_test['Fare'].mean()).round(decimals = 0)
 
-X_test[feature_to_categories] = X_test[feature_to_categories].apply(lambda x: x.astype("category"))
-X_test = pd.get_dummies(X_test, columns = feature_to_categories , dtype = np.int64)
 
-pred1 = mdl1.predict(X_test)
+
+# predict on the test dataset
+Val = test.drop(["Ticket","Name"],axis = 1)
+Val["Cabin_NA"] = Val.Cabin.isna().astype(int)
+Val = Val.drop(["Cabin"], axis = 1)
+Val["Embarked"]=le.fit_transform(Val["Embarked"])
+
+Val['Age'] = Val['Age'].fillna(Val['Age'].median()).round(decimals = 0)
+Val["Fare"] = Val['Fare'].fillna(Val['Fare'].median()).round(decimals = 0)
+
+Val[feature_to_categories] = Val[feature_to_categories].apply(lambda x: x.astype("category"))
+Val = pd.get_dummies(Val, columns = feature_to_categories , dtype = np.int64)
+
+pred1 = mdl1.predict(Val.drop(["PassengerId"], axis = 1))
+pred1_bin = np.where(pred1 >= 0.5, 1, 0)
 
 output = pd.DataFrame({'PassengerId':test["PassengerId"], 
-                        'Survived': pred1})
-output.to_csv('submission2.csv', index=False)
+                        'Survived': pred1_bin})
+output.to_csv('submission.csv', index=False)
 
 print("Your submission was successfully saved!")
