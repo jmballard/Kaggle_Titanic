@@ -47,16 +47,30 @@ The preprocessing contains 5 steps:
 - Separate features and label from train dataset, with only the columns we want to use for the modelling
 
 In the end, separate the train dataset into training and testing subdatasets. The "test" file will be used as validation.
+
 ### Models chosen
-The first model chosen is a XGBRegressor with GridSearch. 
-We tried the hyper parameters:
 
-- "eta":[0.05,0.1,0.2,0.3]
-- "gamma":[0,0.01,0.1,0.15,0.2]
-- "max_depth":[3,4,5,6,7]
+We tried 4 different types of models:
 
-The best hyper parameters are: 'eta': 0.1, 'gamma': 0, 'max_depth': 3.
+- A GLM model (LogisticRegression) inside a Pipeline containing a Standard Scaler
+- A XGBoost with parameters tuned with GridSearchCV
+- A LightGBM_CV model with parameters tuned with BayesianOptimization
+- A EBM model with parameters tuned with GridSearchCV
+
 ### Score in Kaggle
 
-The current Score in Kaggle for the current model is 0.77272.
+The scores in Kaggle for the models are:
+
+- 0.76555 for GLM
+- 0.77272 for LightGBM_CV
+- 0.78229 for EBM
+- 0.78947 for XGBoost
+
+For test, we tried to mix different outputs:
+
+- Mix 1 took all the average of all models and make sure 0.5 is mapped to 1 instead of 0
+- Mix 2 is similar but with only XGB and EBM models
+- Mix 3 is similar with LGB, XGB and EBM but with twice the weight on XGB outputs.
+
+The results are still better than GLMs, and sometimes return exatly the same output as XGB.
 
