@@ -1,7 +1,41 @@
 
 # Kaggle competition on Titanic dataset
 
+## Motivations and goals of this project
+
+The goal of this project is to predict the survivality of people on the Titanic, using different models.
+
+We selected the following 4 questions:
+
+Question 1: What model has the highest accuracy between a GLM, a EBM or a XGB?
+
+Question 2: What model has the highest f-score between a GLM, a EBM or a XGB?
+
+Question 3: Which model has the highest score in Kaggle?
+
+Question 4: What are the most important features of an EBM?
+
+### Library used
+For this project, we will only use Python as language. The packages/modules used for this project are:
+
+- os
+- numpy
+- pandas
+- matplotlib
+- sklearn
+- interpret
+- xgboost
+
+### File where to find the analysis
+
+All the analysis - previously done in different files, has been summarised and grouped in the file "blogpost_notebook.ipynb".
+
+## Data Understanding
+
 ### Data Dictionary
+
+From Kaggle, here is the data dictionary.
+
 |Variable	|Definition	         |Key                       |
 |-----------|--------------------|--------------------------|
 |survival	|Survival	         |0 = No, 1 = Yes           |
@@ -17,60 +51,93 @@
 
 
 ### Variable Notes
-pclass: A proxy for socio-economic status (SES)
+
+#### pclass
+This is a  proxy for socio-economic status (SES)
 1st = Upper
 2nd = Middle
 3rd = Lower
 
-age: Age is fractional if less than 1. If the age is estimated, is it in the form of xx.5
+#### age
+Age is fractional if less than 1. If the age is estimated, is it in the form of xx.5
 
-sibsp: The dataset defines family relations in this way...
+#### sibsp
+The dataset defines family relations in this way...
 Sibling = brother, sister, stepbrother, stepsister
 Spouse = husband, wife (mistresses and fiancés were ignored)
 
-parch: The dataset defines family relations in this way...
+#### parch
+The dataset defines family relations in this way...
 Parent = mother, father
 Child = daughter, son, stepdaughter, stepson
 Some children travelled only with a nanny, therefore parch=0 for them.
 
-## Analysis
+## Data Preparation
 
 ### Import and quick data check
-We first import the datasets and look at them with some plots and statistics. We remove name and Ticket.
+We first import the datasets and look at them with some plots and statistics. We remove Name and Ticket.
+
 ### Preprocessing
 The preprocessing contains 5 steps:
 
+- We filled the missing value in the feature Embarked by "S", as it is the most common one.
+- We look into more details at the Name column. We try to separate the title and see the impact. We decided not to use them in the end.
 - We create a column to say if they had a cabin number or not.
-- Remove the outlier of the Fare column
-- Remove the NAS, with either a label encoder or the median.
-- Create categories from the Class, Sex, Siblings, Embarked and Cabin_NA, then dummies columns
+- Remove the missing value, with either a label encoder or the median.
+- Create categories from the Class, Sex, Embarked and Cabin_NA, then dummies columns
 - Separate features and label from train dataset, with only the columns we want to use for the modelling
 
-In the end, separate the train dataset into training and testing subdatasets. The "test" file will be used as validation.
+In the end, separate the train dataset into training and validation subdatasets.
 
-### Models chosen
 
-We tried 4 different types of models:
+## Modelling
+
+We tried 3 different types of models:
 
 - A GLM model (LogisticRegression) inside a Pipeline containing a Standard Scaler
 - A XGBoost with parameters tuned with GridSearchCV
-- A LightGBM_CV model with parameters tuned with BayesianOptimization
 - A EBM model with parameters tuned with GridSearchCV
 
-### Score in Kaggle
+
+## Answer questions
+
+### Q1 - best accuracy
+
+For model glm: 79.8883%
+For model ebm: 81.5642%
+For model xgb: 81.0056%
+
+The model having the highest accuracy in general is the EBM, the XGB close behind and GLM last.
+
+### Q2 - best f score
+
+For model glm: 74.2857%
+For model ebm: 76.259%
+For model xgb: 74.6269%
+
+The model having the highest f score in general is the EBM, the XGB close behind and GLM last.
+
+
+### Q3 - best score in Kaggle
 
 The scores in Kaggle for the models are:
 
-- 0.76555 for GLM
-- 0.77272 for LightGBM_CV
-- 0.78229 for EBM
-- 0.78947 for XGBoost
+- GLM: 0.76315
+- EBM: 0.77272
+- XGB: 0.78468
 
-For test, we tried to mix different outputs:
+This time, the XGB is the best performing model, followed by EBM then GLM last.
 
-- Mix 1 took all the average of all models and make sure 0.5 is mapped to 1 instead of 0
-- Mix 2 is similar but with only XGB and EBM models
-- Mix 3 is similar with LGB, XGB and EBM but with twice the weight on XGB outputs.
+### Q4 - Feature assessment with EBM
 
-The results are still better than GLMs, and sometimes return exatly the same output as XGB.
+We use the "Explain_global" function from the interpret package to give us the most important features
 
+It seems that the most important feature is the Sex. 
+
+Then, very closely, follow the Class (especially the 3rd), Fare, Age and the fact to have a Cabin number written or not.
+
+## Links
+
+Kaggle Competition: https://www.kaggle.com/c/titanic 
+
+Medium article : https://medium.com/@bronnimannj/best-model-to-predict-titanic-survival-2b77fc938543 
