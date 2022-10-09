@@ -7,9 +7,9 @@ The goal of this project is to predict the survivality of people on the Titanic,
 
 We selected the following 4 questions:
 
-Question 1: What model has the highest accuracy between a GLM, a EBM or a XGB?
+Question 1: Did the "Women and children first" have a real impact on the probability of survival of someone?
 
-Question 2: What model has the highest f-score between a GLM, a EBM or a XGB?
+Question 2: Was there really a link between which ticket class you took and your survival?
 
 Question 3: Which model has the highest score in Kaggle?
 
@@ -101,21 +101,13 @@ We tried 3 different types of models:
 
 ## Answer questions
 
-### Q1 - best accuracy
+### Q1 - Women and Children first
 
-For model glm: 79.8883%
-For model ebm: 81.5642%
-For model xgb: 81.0056%
+From the histograms and EBM plots, we do see that women and/or young children had a higher probability to survive than the others.
 
-The model having the highest accuracy in general is the EBM, the XGB close behind and GLM last.
+### Q2 - Survival in third class
 
-### Q2 - best f score
-
-For model glm: 74.2857%
-For model ebm: 76.259%
-For model xgb: 74.6269%
-
-The model having the highest f score in general is the EBM, the XGB close behind and GLM last.
+From the histograms and EBM plots, we do see that passengers with a third class ticket had a lower probability to survive than the others.
 
 
 ### Q3 - best score in Kaggle
@@ -140,4 +132,4 @@ Then, very closely, follow the Class (especially the 3rd), Fare, Age and the fac
 
 Kaggle Competition: https://www.kaggle.com/c/titanic 
 
-Medium article : https://medium.com/@bronnimannj/best-model-to-predict-titanic-survival-2b77fc938543 
+Medium article : https://medium.com/@bronnimannj/best-model-to-predict-titanic-survival-2b77fc938543
