@@ -1,7 +1,5 @@
 # Output folder
 outputs/
-train.csv
-test.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
