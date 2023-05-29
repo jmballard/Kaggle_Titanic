@@ -1,7 +1,23 @@
 
 # Kaggle competition on Titanic dataset
 
-## Motivations and goals of this project
+## Table of contents
+
+- [Motivations](#motivations)
+- [Packages used](#packages_used)
+- [Instructions](#instructions)
+- [Files](#files)
+- [Data understanding](#data)
+- [Data preparation](#prep)
+- [Modelling](#model)
+- [Answers](#answer)
+- [Possible improvements](#improvements)
+- [License](#license)
+- [Links](#links)
+- [Status](#status)
+
+
+## Motivations and goals of this project <a name="motivations"></a>
 
 The goal of this project is to predict the survivality of people on the Titanic, using different models.
 
@@ -15,7 +31,7 @@ Question 3: Which model has the highest score in Kaggle?
 
 Question 4: What are the most important features of an EBM?
 
-### Library used
+## Library used <a name="packages_used"></a>
 For this project, we will only use Python as language. The packages/modules used for this project are:
 
 - os
@@ -26,11 +42,41 @@ For this project, we will only use Python as language. The packages/modules used
 - interpret
 - xgboost
 
-### File where to find the analysis
+## Instructions <a name="instructions"></a>
+
+You can clone this repository by opening Git Bash and the command line
+
+```text
+git clone https://github.com/jmballard/Kaggle_Titanic.git
+```
 
 All the analysis - previously done in different files, has been summarised and grouped in the file "blogpost_notebook.ipynb".
 
-## Data Understanding
+## Files <a name="files"></a>
+
+Here is the content of this repo:
+
+```text
+|- archive
+
+|- data
+-- test.csv
+-- train.csv
+
+|- outputs
+
+|- utils
+-- plot.py
+
+|- venv
+
+- .gitignore
+- blogpost_notebook.ipynb
+- LICENSE
+- README.md
+```
+
+## Data Understanding <a name="data"></a>
 
 ### Data Dictionary
 
@@ -72,7 +118,8 @@ Parent = mother, father
 Child = daughter, son, stepdaughter, stepson
 Some children travelled only with a nanny, therefore parch=0 for them.
 
-## Data Preparation
+
+## Data Preparation <a name="prep"></a>
 
 ### Import and quick data check
 We first import the datasets and look at them with some plots and statistics. We remove Name and Ticket.
@@ -90,7 +137,7 @@ The preprocessing contains 5 steps:
 In the end, separate the train dataset into training and validation subdatasets.
 
 
-## Modelling
+## Modelling <a name="model"></a>
 
 We tried 3 different types of models:
 
@@ -99,7 +146,7 @@ We tried 3 different types of models:
 - A EBM model with parameters tuned with GridSearchCV
 
 
-## Answer questions
+## Answer questions <a name="answer"></a>
 
 ### Q1 - Women and Children first
 
@@ -128,8 +175,42 @@ It seems that the most important feature is the Sex.
 
 Then, very closely, follow the Class (especially the 3rd), Fare, Age and the fact to have a Cabin number written or not.
 
-## Links
+
+## Possible improvements on this project: <a name="improvements"></a>
+
+List of possible improvements:
+- test different models
+
+## License <a name="license"></a>
+
+MIT License
+
+Copyright (c) [2022] [Julie Ballard]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+## Links <a name="links"></a>
 
 Kaggle Competition: https://www.kaggle.com/c/titanic 
 
 Medium article : https://medium.com/@bronnimannj/best-model-to-predict-titanic-survival-2b77fc938543
+
+## Project status  <a name="status"></a>
+
+This project is currently in pause.
